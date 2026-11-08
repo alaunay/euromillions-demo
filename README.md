@@ -174,6 +174,23 @@ $ gh pr create --fill
 $ gh pr merge --squash --delete-branch
 ```
 
+## Packaging
+
+Both distributions build from the repository:
+
+```console
+$ dpkg-buildpackage -b -us -uc        # Debian, needs debhelper and dh-python
+$ mkdir -p rpmbuild/SOURCES
+$ git archive --format=tar.gz --prefix=terminal-svg-demo-1.0.0/ \
+    --output=rpmbuild/SOURCES/terminal-svg-demo-1.0.0.tar.gz HEAD
+$ rpmbuild -bb packaging/rpm/terminal-svg-demo.spec --define "_topdir $PWD/rpmbuild"
+```
+
+The Debian package keeps its catalogues inside the Python package; the
+RPM keeps them in `/usr/share/terminal-svg-demo`. The program looks in
+both places, so either layout translates. CI builds both and attaches
+them to the run.
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).

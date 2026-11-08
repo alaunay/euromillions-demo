@@ -4,11 +4,23 @@ from __future__ import annotations
 
 import gettext as _gettext
 import os
+import sys
 from pathlib import Path
 from typing import List, Optional
 
 DOMAIN = "terminal-svg-demo"
 LOCALE_DIR = Path(__file__).with_name("locale")
+
+
+def locale_dirs() -> List[Path]:
+    """Where a catalogue may live: the package, then the system data dir."""
+    prefix = Path(sys.prefix)
+    return [
+        LOCALE_DIR,
+        prefix / "share" / "terminal-svg-demo" / "locale",
+        Path("/usr/share/terminal-svg-demo/locale"),
+    ]
+
 
 _translation: Optional[_gettext.NullTranslations] = None
 
@@ -27,6 +39,12 @@ def detect_language(explicit: Optional[str] = None) -> str:
 
 
 def catalogue(code: str) -> Path:
+    """The first catalogue for a code, or the expected path when absent."""
+    for directory in locale_dirs():
+        path = directory / code / "LC_MESSAGES" / f"{DOMAIN}.mo"
+        if path.is_file():
+            return path
+
     return LOCALE_DIR / code / "LC_MESSAGES" / f"{DOMAIN}.mo"
 
 
@@ -34,9 +52,11 @@ def available() -> List[str]:
     """Every language with a compiled catalogue, English first."""
     codes = ["en"]
 
-    if LOCALE_DIR.is_dir():
-        for path in sorted(LOCALE_DIR.iterdir()):
-            if (path / "LC_MESSAGES" / f"{DOMAIN}.mo").is_file():
+    for directory in locale_dirs():
+        if not directory.is_dir():
+            continue
+        for path in sorted(directory.iterdir()):
+            if (path / "LC_MESSAGES" / f"{DOMAIN}.mo").is_file() and path.name not in codes:
                 codes.append(path.name)
 
     return codes
@@ -47,9 +67,10 @@ def setup(language: Optional[str] = None) -> str:
     global _translation
 
     code = detect_language(language)
+    localedir = catalogue(code).parents[2]
     _translation = _gettext.translation(
         DOMAIN,
-        localedir=str(LOCALE_DIR),
+        localedir=str(localedir),
         languages=[code],
         fallback=True,
     )
