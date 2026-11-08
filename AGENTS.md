@@ -21,6 +21,8 @@ tests/                           unittest suite
 - SMIL for the animation. No JavaScript, no media player, no GIF.
 - Nothing about a particular project belongs in the code: title, sessions,
   outputs, and colours come from the spec.
+- The loader accepts whole-line `//` comments. Keep that when editing the
+  spec parser, and name colours in the examples.
 - `examples/euromillions.json` is illustrative. It does not track the
   euromillions repository, which owns its own spec.
 
