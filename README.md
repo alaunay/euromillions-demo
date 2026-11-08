@@ -211,6 +211,13 @@ RPM keeps them in `/usr/share/terminal-svg-demo`. The program looks in
 both places, so either layout translates. CI builds both and attaches
 them to the run.
 
+## Code scanning
+
+GitHub code scanning runs CodeQL on the Python code through the repository
+default setup, and shows the shellcheck findings as a second tool.
+ShellCheck has no SARIF writer, so `tools/shellcheck-sarif.py` converts its
+JSON output and the `code-scanning` job uploads it.
+
 ## Changelog
 
 See [CHANGELOG.md](CHANGELOG.md).

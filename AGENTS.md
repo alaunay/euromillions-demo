@@ -85,6 +85,12 @@ tools/build-locales.sh
 
 `msgfmt --check` rejects a translation whose placeholders drift.
 
+## Code scanning
+
+CodeQL runs on the Python code through the repository default setup. The
+`code-scanning` job adds the shellcheck findings: `tools/shellcheck-sarif.py`
+converts `shellcheck -f json1` into SARIF, which GitHub accepts.
+
 ## Metadata
 
 `metadata.json` follows the OpenVox module metadata format: name, version,
