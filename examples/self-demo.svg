@@ -2,8 +2,8 @@
 <title id="title">Terminal session</title>
 <desc id="desc">A terminal types a command, prints the result, then types another command.</desc>
 <defs>
-<clipPath id="typing-0"><rect x="46.0" y="58" width="0" height="22"><animate attributeName="width" values="0;0;495.0;495.0" keyTimes="0;0.0239;0.2307;1" dur="14.631s" repeatCount="indefinite"/></rect></clipPath>
-<clipPath id="typing-1"><rect x="46.0" y="142" width="0" height="22"><animate attributeName="width" values="0;0;549.0;549.0" keyTimes="0;0.282;0.5113;1" dur="14.631s" repeatCount="indefinite"/></rect></clipPath>
+<clipPath id="typing-0"><rect x="46" y="58" width="0" height="22"><animate attributeName="width" values="0;0;495.0;495.0" keyTimes="0;0.0239;0.2307;1" dur="14.631s" repeatCount="indefinite"/></rect></clipPath>
+<clipPath id="typing-1"><rect x="46" y="142" width="0" height="22"><animate attributeName="width" values="0;0;549.0;549.0" keyTimes="0;0.282;0.5113;1" dur="14.631s" repeatCount="indefinite"/></rect></clipPath>
 </defs>
 <rect width="720" height="250" rx="12" fill="#0d1117"/>
 <rect width="720" height="40" rx="12" fill="#161b22"/>
@@ -15,23 +15,23 @@
 <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15">
 <text x="28" y="72" fill="#39ff14">$</text>
 <g clip-path="url(#typing-0)">
-<text x="46.0" y="72" fill="#e6edf3">terminal-svg-demo examples/self-demo.json self-demo.svg</text>
+<text x="46" y="72" fill="#e6edf3">terminal-svg-demo examples/self-demo.json self-demo.svg</text>
 </g>
-<rect x="46.0" y="59" width="8" height="19" fill="#e6edf3" opacity="0"><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.0034;0.282;1" dur="14.631s" repeatCount="indefinite" calcMode="discrete"/><animate attributeName="x" values="46.0;46.0;541.0;541.0" keyTimes="0;0.0239;0.2307;1" dur="14.631s" repeatCount="indefinite"/></rect>
+<rect x="46" y="59" width="8" height="19" fill="#e6edf3" opacity="0"><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.0034;0.282;1" dur="14.631s" repeatCount="indefinite" calcMode="discrete"/><animate attributeName="x" values="46;46;541.0;541.0" keyTimes="0;0.0239;0.2307;1" dur="14.631s" repeatCount="indefinite"/></rect>
 <g opacity="0"><animate attributeName="opacity" values="0;1" keyTimes="0;0.241" dur="14.631s" repeatCount="indefinite" calcMode="discrete"/>
 <text x="28" y="100" fill="#9aa4b2">wrote:</text>
-<text x="112.0" y="100" fill="#39ff14">self-demo.svg</text>
+<text x="112" y="100" fill="#39ff14">self-demo.svg</text>
 </g>
 <g opacity="0"><animate attributeName="opacity" values="0;1" keyTimes="0;0.2615" dur="14.631s" repeatCount="indefinite" calcMode="discrete"/>
 <text x="28" y="156" fill="#39ff14">$</text>
 </g>
 <g clip-path="url(#typing-1)">
-<text x="46.0" y="156" fill="#e6edf3">terminal-svg-demo examples/euromillions.json euromillions.svg</text>
+<text x="46" y="156" fill="#e6edf3">terminal-svg-demo examples/euromillions.json euromillions.svg</text>
 </g>
-<rect x="46.0" y="143" width="8" height="19" fill="#e6edf3" opacity="0"><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.2615;1" dur="14.631s" repeatCount="indefinite" calcMode="discrete"/><animate attributeName="x" values="46.0;46.0;595.0;595.0" keyTimes="0;0.282;0.5113;1" dur="14.631s" repeatCount="indefinite"/></rect>
+<rect x="46" y="143" width="8" height="19" fill="#e6edf3" opacity="0"><animate attributeName="opacity" values="0;1;1" keyTimes="0;0.2615;1" dur="14.631s" repeatCount="indefinite" calcMode="discrete"/><animate attributeName="x" values="46;46;595.0;595.0" keyTimes="0;0.282;0.5113;1" dur="14.631s" repeatCount="indefinite"/></rect>
 <g opacity="0"><animate attributeName="opacity" values="0;1" keyTimes="0;0.5216" dur="14.631s" repeatCount="indefinite" calcMode="discrete"/>
 <text x="28" y="184" fill="#9aa4b2">wrote:</text>
-<text x="112.0" y="184" fill="#39ff14">euromillions.svg</text>
+<text x="112" y="184" fill="#39ff14">euromillions.svg</text>
 </g>
 </g>
 </svg>

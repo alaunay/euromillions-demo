@@ -140,11 +140,11 @@ class Layout:
 
         self.cycle = t + self.spec["hold"]
 
-    def prompt_x(self) -> float:
-        return float(self.spec["left"] + self.spec["prompt_width"])
+    def prompt_x(self) -> int:
+        return int(self.spec["left"]) + int(self.spec["prompt_width"])
 
-    def value_x(self) -> float:
-        return float(self.spec["value_column"])
+    def value_x(self) -> int:
+        return int(self.spec["value_column"])
 
 
 def key(time: float, cycle: float) -> float:
