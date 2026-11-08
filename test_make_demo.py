@@ -1,5 +1,6 @@
 """Tests for make_demo.py."""
 
+import re
 import subprocess
 import sys
 import tempfile
@@ -37,6 +38,13 @@ class BuildTest(unittest.TestCase):
         self.assertIn("#4d6bff", self.svg)
         self.assertIn("#eebb05", self.svg)
         self.assertIn("#39ff14", self.svg)
+
+    def test_key_times_are_ordered(self):
+        for match in re.finditer(r'keyTimes="([^"]*)"', self.svg):
+            values = [float(value) for value in match.group(1).split(";")]
+            self.assertEqual(values[0], 0.0)
+            self.assertEqual(values, sorted(values))
+            self.assertEqual(len(values), len(set(values)))
 
     def test_output_uses_the_spec_title_and_height(self):
         self.assertIn(">euromillions</text>", self.svg)
