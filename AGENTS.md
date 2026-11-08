@@ -45,9 +45,20 @@ tools/build-locales.sh
 .venv/bin/coverage report
 ```
 
-Coverage must stay at or above 90 percent. CI runs the same commands on
-Python 3.12, the suite alone on 3.10 to 3.13, and fails when the committed
-examples differ from a fresh generation.
+Coverage must stay at or above 90 percent.
+
+The shell scripts are checked too:
+
+```
+shellcheck tools/build-locales.sh .githooks/commit-msg
+bats tests/shell
+```
+
+`tests/shell/build_locales.bats` runs the catalogue builder in a sandbox;
+`tests/shell/commit_msg.bats` exercises the hook in a throwaway git
+repository. CI runs the same commands on Python 3.12, the Python suite
+alone on 3.10 to 3.13, and fails when the committed examples differ from a
+fresh generation.
 
 French tests skip when `tools/build-locales.sh` has not run, so build the
 catalogues first.

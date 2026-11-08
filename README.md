@@ -135,6 +135,7 @@ $ msgmerge -U po/fr.po po/terminal-svg-demo.pot
 - Python 3.10 or later
 - no third-party package at runtime
 - `gettext` only to build the catalogues
+- `bats` and `shellcheck` only for development
 
 ## Development
 
@@ -146,11 +147,13 @@ $ .venv/bin/ruff format --check .
 $ .venv/bin/mypy src/terminal_svg_demo
 $ .venv/bin/coverage run -m unittest discover -s tests
 $ .venv/bin/coverage report
+$ shellcheck tools/build-locales.sh .githooks/commit-msg
+$ bats tests/shell
 $ tools/build-locales.sh
 ```
 
 `ruff` 0.17.4, `mypy`, and `coverage` are pinned in the `dev` extra. CI
-runs the six commands, plus a check that the committed examples match the
+runs the commands, including shellcheck and the bats suite, plus a check that the committed examples match the
 generator, on every push to `master` and on every pull request. The test
 matrix covers Python 3.10 to 3.13.
 
