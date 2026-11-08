@@ -7,7 +7,7 @@ The animation uses SMIL: a plain image for every browser, no JavaScript,
 no media player, no GIF. Python standard library only.
 
 Example of the output: the [euromillions](https://github.com/alaunay/euromillions)
-README.
+README. `examples/euromillions.json` is a sample spec, not a live copy.
 
 ## Usage
 
