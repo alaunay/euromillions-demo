@@ -130,10 +130,11 @@ jobs:
 
   package-rpm:
     runs-on: ubuntu-latest
-    container: fedora:latest
+    container: quay.io/centos/centos:stream10
     steps:
       - name: Install the packaging tools
         run: |
+          dnf config-manager --set-enabled crb
           dnf install -y -q git tar gzip rpm-build gettext python3-devel \
             python3-setuptools pyproject-rpm-macros
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -154,3 +155,41 @@ jobs:
         with:
           name: rpm-package
           path: dist/*.rpm
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the tools
+        run: |
+          brew install gettext bats shellcheck
+          echo "$(brew --prefix gettext)/bin" >> "$GITHUB_PATH"
+
+      - name: Build the catalogues
+        run: tools/build-locales.sh
+
+      - name: Install the project
+        run: python3 -m pip install -e .
+
+      - name: Test
+        run: |
+          python3 -m unittest discover -s tests -v
+          bats tests/shell
+
+  freebsd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: vmactions/freebsd-vm@v1
+        with:
+          prepare: pkg install -y python3 gettext
+          run: |
+            export PATH=/usr/local/bin:$PATH
+            tools/build-locales.sh
+            PYTHONPATH=src python3 -m unittest discover -s tests -v

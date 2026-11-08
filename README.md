@@ -137,6 +137,10 @@ $ msgmerge -U po/fr.po po/terminal-svg-demo.pot
 - `gettext` only to build the catalogues
 - `bats` and `shellcheck` only for development
 
+It runs on Linux, macOS, and FreeBSD. On macOS, install `gettext` with
+Homebrew and put its `bin` on `PATH` before building the catalogues. CI
+exercises all three systems.
+
 ## Development
 
 ```console
