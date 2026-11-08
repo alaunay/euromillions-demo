@@ -1,0 +1,100 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the terminal-svg-demo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: terminal-svg-demo 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-08 22:00+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/terminal_svg_demo/core.py:59
+msgid "the spec must be a JSON object"
+msgstr ""
+
+#: src/terminal_svg_demo/core.py:67
+msgid "'title' must be a string"
+msgstr ""
+
+#: src/terminal_svg_demo/core.py:71
+msgid "'sessions' must be a non-empty list"
+msgstr ""
+
+#: src/terminal_svg_demo/core.py:75
+#, python-format
+msgid "session %(index)d must be an object"
+msgstr ""
+
+#: src/terminal_svg_demo/core.py:78
+#, python-format
+msgid "session %(index)d: 'command' must be a string"
+msgstr ""
+
+#: src/terminal_svg_demo/core.py:85
+#, python-format
+msgid "session %(index)d: 'outputs' must be a list"
+msgstr ""
+
+#: src/terminal_svg_demo/core.py:94
+#, python-format
+msgid "session %(index)d output %(offset)d: '%(field)s' must be a string"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:25
+#, python-format
+msgid "usage: %(prog)s [-l CODE] SPEC.json [OUTPUT.svg]"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:28
+msgid "Render a terminal session as an animated SVG."
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:30
+msgid "options:"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:31
+msgid "  -l, --lang CODE  output language"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:32
+msgid "  -h, --help       show this help"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:34
+#, python-format
+msgid "languages: %(languages)s"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:74
+#, python-format
+msgid "no catalogue for %(code)s, using English"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:92
+#, python-format
+msgid "option %(option)s needs a language code"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:94 src/terminal_svg_demo/cli.py:101
+#, python-format
+msgid "unknown argument: %(arg)s"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:99
+msgid "missing spec file"
+msgstr ""
+
+#: src/terminal_svg_demo/cli.py:107
+#, python-format
+msgid "wrote: %(path)s"
+msgstr ""

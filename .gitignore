@@ -2,3 +2,9 @@ __pycache__/
 *.pyc
 *.swp
 *.swo
+*.egg-info/
+build/
+dist/
+.coverage
+src/terminal_svg_demo/locale/
+.venv/

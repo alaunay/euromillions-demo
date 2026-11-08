@@ -1,0 +1,22 @@
+{
+  "title": "terminal-svg-demo",
+  "sessions": [
+    {
+      "command": "terminal-svg-demo examples/self-demo.json self-demo.svg",
+      "outputs": [
+        {"label": "wrote:", "value": "self-demo.svg", "color": "#39ff14"}
+      ]
+    },
+    {
+      "command": "terminal-svg-demo examples/euromillions.json euromillions.svg",
+      "outputs": [
+        {"label": "wrote:", "value": "euromillions.svg", "color": "#39ff14"}
+      ]
+    }
+  ],
+  "colors": {
+    "prompt": "#39ff14",
+    "command": "#e6edf3",
+    "label": "#9aa4b2"
+  }
+}

@@ -4,45 +4,75 @@ Guidance for agents working in this repository.
 
 ## Project
 
-`make_demo.py` renders an animated terminal session as declarative SVG,
-from a JSON spec. It builds the document in memory, then writes it to the
-path given on the command line, or to `demo.svg`.
+`terminal-svg-demo` renders an animated terminal session as declarative
+SVG, from a JSON spec.
 
-- Standard library only. Do not add a dependency.
+```
+src/terminal_svg_demo/core.py    spec loading, validation, rendering
+src/terminal_svg_demo/cli.py     the command line
+src/terminal_svg_demo/i18n.py    gettext setup and language list
+po/                              translation catalogues
+tools/build-locales.sh           compiles po/*.po into the package
+examples/                        specs and the SVGs generated from them
+tests/                           unittest suite
+```
+
+- Standard library only at runtime. Do not add a dependency.
 - SMIL for the animation. No JavaScript, no media player, no GIF.
-- Nothing about a particular project belongs in the code: the title, the
-  commands, the outputs, and the colours all come from the spec.
+- Nothing about a particular project belongs in the code: title, sessions,
+  outputs, and colours come from the spec.
 - `examples/euromillions.json` is illustrative. It does not track the
-  euromillions repository, which owns its own copy of the spec.
+  euromillions repository, which owns its own spec.
 
 Run it with:
 
 ```
-python3 make_demo.py SPEC.json OUTPUT.svg
+terminal-svg-demo examples/self-demo.json /tmp/demo.svg
 ```
 
 ## Tests
 
-The suite uses `unittest` and needs `ruff`:
+The suite uses `unittest`, and the development extra brings the checks:
 
 ```
-ruff check .
-python3 -m py_compile make_demo.py test_make_demo.py
-python3 -m unittest -v
+python3 -m venv .venv
+.venv/bin/pip install -e ".[dev]"
+tools/build-locales.sh
+.venv/bin/ruff check .
+.venv/bin/ruff format --check .
+.venv/bin/mypy src/terminal_svg_demo
+.venv/bin/coverage run -m unittest discover -s tests
+.venv/bin/coverage report
 ```
 
-CI runs all three. The tests build the example spec, assert that the
-document is well-formed XML, that it animates, that every session and
-output is present, that the spec colours appear, and that a minimal spec
-outside the example builds too.
+Coverage must stay at or above 90 percent. CI runs the same commands on
+Python 3.12, the suite alone on 3.10 to 3.13, and fails when the committed
+examples differ from a fresh generation.
+
+French tests skip when `tools/build-locales.sh` has not run, so build the
+catalogues first.
 
 ## Code conventions
 
-- Python 3.8 or later, standard library only.
-- Four spaces, double quotes.
-- `ruff check` must pass with no finding.
+- Python 3.10 or later, standard library only.
+- Four spaces, double quotes, 100 columns.
+- `ruff check`, `ruff format --check`, and `mypy` must pass.
 - Keep the generated SVG valid as an `<img>`: no script, no external
   resource.
+
+## Translations
+
+Msgids are the English strings. Every message goes through `_()` from
+`i18n`. After adding or changing one:
+
+```
+xgettext --language=Python --keyword=_ --output=po/terminal-svg-demo.pot \
+    src/terminal_svg_demo/*.py
+msgmerge -U po/fr.po po/terminal-svg-demo.pot
+tools/build-locales.sh
+```
+
+`msgfmt --check` rejects a translation whose placeholders drift.
 
 ## Commit rules
 
@@ -77,8 +107,8 @@ GitHub rejects a signed commit whose email is not a UID of the key.
 ### Pull requests
 
 `master` takes pull requests only. Push a branch, open a pull request, and
-merge it once `checks` and `dco` are green. Direct pushes are rejected and
-force pushes are disabled.
+merge it once `checks`, `tests`, and `dco` are green. Direct pushes are
+rejected and force pushes are disabled.
 
 ### Commit messages
 

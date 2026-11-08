@@ -1,18 +1,14 @@
-#!/usr/bin/env python3
-"""Render an animated terminal session as declarative SVG.
+"""The renderer: spec loading, validation, and SVG output."""
 
-The animation uses SMIL, so every renderer plays it as a plain image: no
-JavaScript, no media player, no GIF.
-
-    python3 make_demo.py SPEC.json [OUTPUT.svg]
-"""
+from __future__ import annotations
 
 import json
-import sys
-from pathlib import Path
+from typing import Any, Dict, List, Optional
 from xml.sax.saxutils import escape
 
-DEFAULTS = {
+from .i18n import _
+
+DEFAULTS: Dict[str, Any] = {
     "title": "terminal",
     "width": 720,
     "title_bar": 40,
@@ -40,7 +36,8 @@ DEFAULTS = {
 }
 
 
-def merge(base, override):
+def merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
+    """Recursively overlay ``override`` on ``base``."""
     result = dict(base)
 
     for key, value in override.items():
@@ -52,34 +49,71 @@ def merge(base, override):
     return result
 
 
-def load(path):
+def load(path: str) -> Dict[str, Any]:
+    """Read a spec file and merge it with the defaults."""
     with open(path, encoding="utf-8") as handle:
-        return merge(DEFAULTS, json.load(handle))
+        spec = json.load(handle)
+
+    if not isinstance(spec, dict):
+        raise ValueError(_("the spec must be a JSON object"))
+
+    return merge(DEFAULTS, spec)
 
 
-def text(x, y, value, fill, extra=""):
+def validate(spec: Dict[str, Any]) -> None:
+    """Reject a spec that cannot be rendered, with a precise message."""
+    if not isinstance(spec, dict):
+        raise ValueError(_("the spec must be a JSON object"))
+
+    if not isinstance(spec.get("title"), str):
+        raise ValueError(_("'title' must be a string"))
+
+    sessions = spec.get("sessions")
+    if not isinstance(sessions, list) or not sessions:
+        raise ValueError(_("'sessions' must be a non-empty list"))
+
+    for index, session in enumerate(sessions):
+        if not isinstance(session, dict):
+            raise ValueError(_("session %(index)d must be an object") % {"index": index})
+        if not isinstance(session.get("command"), str):
+            raise ValueError(_("session %(index)d: 'command' must be a string") % {"index": index})
+
+        outputs = session.get("outputs")
+        if not isinstance(outputs, list):
+            raise ValueError(_("session %(index)d: 'outputs' must be a list") % {"index": index})
+
+        for offset, output in enumerate(outputs):
+            for field in ("label", "value", "color"):
+                if not isinstance(output.get(field), str):
+                    raise ValueError(
+                        _("session %(index)d output %(offset)d: '%(field)s' must be a string")
+                        % {"index": index, "offset": offset, "field": field}
+                    )
+
+
+def text(x: float, y: float, value: str, fill: str, extra: str = "") -> str:
     return f'<text x="{x}" y="{y}" fill="{fill}"{extra}>{escape(value)}</text>'
 
 
-def timed(duration, cycle):
+def timed(duration: float) -> str:
     return f'dur="{duration}s" repeatCount="indefinite"'
 
 
 class Layout:
     """Where the lines sit, and the length of the animation cycle."""
 
-    def __init__(self, spec):
+    def __init__(self, spec: Dict[str, Any]) -> None:
         self.spec = spec
-        self.rows = sum(1 + len(session["outputs"]) for session in spec["sessions"])
+        self.rows: int = sum(1 + len(session["outputs"]) for session in spec["sessions"])
         self.rows += max(len(spec["sessions"]) - 1, 0)
-        self.height = spec["first_line"] + (self.rows - 1) * spec["line_height"] + 66
-        self.y = {}
-        self.begin = {}
-        self.end = {}
-        self.cycle = 0.0
+        self.height: int = spec["first_line"] + (self.rows - 1) * spec["line_height"] + 66
+        self.y: Dict[Any, int] = {}
+        self.begin: Dict[int, float] = {}
+        self.end: Dict[int, float] = {}
+        self.cycle: float = 0.0
         self.place()
 
-    def place(self):
+    def place(self) -> None:
         first = self.spec["first_line"]
         step = self.spec["line_height"]
         start = self.spec["start"]
@@ -98,7 +132,7 @@ class Layout:
 
             for offset in range(len(session["outputs"])):
                 y += step
-                t += pause * (1 if offset else 0.43)
+                t += pause if offset else pause * 0.43
                 self.y[(index, offset)] = y
 
             y += step * 2
@@ -106,56 +140,60 @@ class Layout:
 
         self.cycle = t + self.spec["hold"]
 
-    def prompt_x(self):
-        return self.spec["left"] + self.spec["prompt_width"]
+    def prompt_x(self) -> float:
+        return float(self.spec["left"] + self.spec["prompt_width"])
 
-    def value_x(self):
-        return self.spec["value_column"]
+    def value_x(self) -> float:
+        return float(self.spec["value_column"])
 
 
-def key(time, cycle):
+def key(time: float, cycle: float) -> float:
     return round(time / cycle, 4)
 
 
-def fade_in(at, cycle):
+def fade_in(at: float, cycle: float) -> str:
     return (
-        f'<animate attributeName="opacity" values="0;1" keyTimes="0;{key(at, cycle)}" '
-        f"{timed(cycle, cycle)} calcMode=\"discrete\"/>"
+        f'<animate attributeName="opacity" values="0;1" '
+        f'keyTimes="0;{key(at, cycle)}" {timed(cycle)} calcMode="discrete"/>'
     )
 
 
-def typing(width, start, end, cycle):
+def typing(width: float, start: float, end: float, cycle: float) -> str:
     return (
         f'<animate attributeName="width" values="0;0;{width};{width}" '
-        f'keyTimes="0;{key(start, cycle)};{key(end, cycle)};1" {timed(cycle, cycle)}/>'
+        f'keyTimes="0;{key(start, cycle)};{key(end, cycle)};1" {timed(cycle)}/>'
     )
 
 
-def cursor_move(x, begin, end, width, cycle):
+def cursor_move(x: float, begin: float, end: float, width: float, cycle: float) -> str:
     return (
         f'<animate attributeName="x" values="{x};{x};{x + width};{x + width}" '
-        f'keyTimes="0;{key(begin, cycle)};{key(end, cycle)};1" {timed(cycle, cycle)}/>'
+        f'keyTimes="0;{key(begin, cycle)};{key(end, cycle)};1" {timed(cycle)}/>'
     )
 
 
-def cursor_visibility(begin, hide, cycle):
+def cursor_visibility(begin: float, hide: float, cycle: float) -> str:
     start = max(begin - 0.3, 0.0)
+
     if hide >= cycle:
         return (
             f'<animate attributeName="opacity" values="0;1;1" '
-            f'keyTimes="0;{key(start, cycle)};1" '
-            f"{timed(cycle, cycle)} calcMode=\"discrete\"/>"
+            f'keyTimes="0;{key(start, cycle)};1" {timed(cycle)} calcMode="discrete"/>'
         )
+
     return (
         f'<animate attributeName="opacity" values="0;1;1;0" '
         f'keyTimes="0;{key(start, cycle)};{key(hide, cycle)};1" '
-        f"{timed(cycle, cycle)} calcMode=\"discrete\"/>"
+        f'{timed(cycle)} calcMode="discrete"/>'
     )
 
 
-def build(spec=None):
+def build(spec: Optional[Dict[str, Any]] = None) -> str:
+    """Render a spec, or the defaults, into an SVG document."""
     if spec is None:
         spec = merge(DEFAULTS, {})
+
+    validate(spec)
 
     layout = Layout(spec)
     cycle = layout.cycle
@@ -168,7 +206,7 @@ def build(spec=None):
     height = layout.height
     last = len(spec["sessions"]) - 1
 
-    out = []
+    out: List[str] = []
     out.append(
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
         f'viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">'
@@ -213,7 +251,10 @@ def build(spec=None):
         )
     )
 
-    out.append(f'<g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="{font_size}">')
+    out.append(
+        '<g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" '
+        f'font-size="{font_size}">'
+    )
 
     for index, session in enumerate(spec["sessions"]):
         y = layout.y[index]
@@ -243,7 +284,14 @@ def build(spec=None):
         for offset, output in enumerate(session["outputs"]):
             at = end + spec["line_pause"] * (1 if offset else 0.43)
             out.append(f'<g opacity="0">{fade_in(at, cycle)}')
-            out.append(text(spec["left"], layout.y[(index, offset)], output["label"], colors["label"]))
+            out.append(
+                text(
+                    spec["left"],
+                    layout.y[(index, offset)],
+                    output["label"],
+                    colors["label"],
+                )
+            )
             out.append(
                 text(
                     value_x,
@@ -257,20 +305,3 @@ def build(spec=None):
     out.append("</g>")
     out.append("</svg>")
     return "\n".join(out) + "\n"
-
-
-def main(argv):
-    if len(argv) < 2:
-        print("usage: make_demo.py SPEC.json [OUTPUT.svg]", file=sys.stderr)
-        return 2
-
-    spec = load(argv[1])
-    target = Path(argv[2]) if len(argv) > 2 else Path("demo.svg")
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(build(spec), encoding="utf-8")
-    print(f"wrote {target}")
-    return 0
-
-
-if __name__ == "__main__":
-    sys.exit(main(sys.argv))

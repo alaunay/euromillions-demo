@@ -1,0 +1,73 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "terminal-svg-demo"
+version = "1.0.0"
+description = "Render an animated terminal session as declarative SVG"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Arnaud Launay", email = "asl@launay.org" }]
+keywords = ["svg", "terminal", "animation", "readme", "smil"]
+classifiers = [
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Documentation",
+    "Topic :: Multimedia :: Graphics",
+]
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "coverage[toml]>=7.4",
+    "mypy>=1.8",
+    "ruff==0.17.4",
+]
+
+[project.scripts]
+terminal-svg-demo = "terminal_svg_demo.cli:cli"
+
+[project.urls]
+Homepage = "https://github.com/alaunay/terminal-svg-demo"
+Issues = "https://github.com/alaunay/terminal-svg-demo/issues"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+terminal_svg_demo = ["locale/*/LC_MESSAGES/*.mo"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.10"
+disallow_untyped_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_return_any = true
+
+[tool.coverage.run]
+source = ["terminal_svg_demo"]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
