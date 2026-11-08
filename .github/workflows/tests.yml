@@ -35,6 +35,9 @@ jobs:
       - name: Test the shell scripts
         run: bats tests/shell
 
+      - name: Validate the metadata
+        run: python3 tools/check-metadata.py
+
       - name: Lint
         run: ruff check .
 

@@ -141,6 +141,22 @@ It runs on Linux, macOS, and FreeBSD. On macOS, install `gettext` with
 Homebrew and put its `bin` on `PATH` before building the catalogues. CI
 exercises all three systems.
 
+## Supported systems
+
+`metadata.json` follows the OpenVox module metadata format and lists the
+supported systems:
+
+| System | Minimum |
+| --- | --- |
+| Debian | 12 |
+| Ubuntu | 24.04 |
+| Red Hat Enterprise Linux | 9 |
+| CentOS Stream | 9 |
+| FreeBSD | 14 |
+| macOS (Darwin) | 14 |
+
+`tools/check-metadata.py` validates the file, and CI runs it.
+
 ## Development
 
 ```console
