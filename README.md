@@ -188,6 +188,20 @@ runs the commands, including shellcheck and the bats suite, plus a check that th
 generator, on every push to `master` and on every pull request. The test
 matrix covers Python 3.10 to 3.13.
 
+## Releases
+
+Cut a tag to publish the packages:
+
+```console
+$ git tag v1.1.0
+$ git push origin v1.1.0
+```
+
+`.github/workflows/release.yml` builds the `.deb` and the `.rpm`, then
+attaches both to the GitHub release. The tag must match the versions in
+`debian/changelog`, `packaging/rpm/terminal-svg-demo.spec`, `pyproject.toml`,
+and `metadata.json`; the job stops otherwise.
+
 ## Contributing
 
 `master` only takes pull requests, and every pull request must:
