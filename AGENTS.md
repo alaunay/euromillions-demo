@@ -12,8 +12,8 @@ path given on the command line, or to `demo.svg`.
 - SMIL for the animation. No JavaScript, no media player, no GIF.
 - Nothing about a particular project belongs in the code: the title, the
   commands, the outputs, and the colours all come from the spec.
-- `examples/euromillions.json` is the spec used by the euromillions
-  repository. Keep it in step with that repository when it changes.
+- `examples/euromillions.json` is illustrative. It does not track the
+  euromillions repository, which owns its own copy of the spec.
 
 Run it with:
 
