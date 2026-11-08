@@ -18,8 +18,10 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install gettext
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext
+      - name: Install the shell tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bats gettext shellcheck
 
       - name: Build the catalogues
         run: tools/build-locales.sh
