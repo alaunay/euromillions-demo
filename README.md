@@ -13,7 +13,8 @@ $ python3 make_demo.py OUTPUT.svg
 $ python3 make_demo.py            # writes demo.svg here
 ```
 
-The parent directory of the target is created when needed.
+The parent directory of the target is created when needed. The output is
+deterministic: same constants, same bytes.
 
 For the euromillions repository:
 
