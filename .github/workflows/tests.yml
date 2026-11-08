@@ -136,7 +136,7 @@ jobs:
         run: |
           dnf config-manager --set-enabled crb
           dnf install -y -q git tar gzip rpm-build gettext python3-devel \
-            python3-setuptools pyproject-rpm-macros
+            python3-setuptools python3-wheel pyproject-rpm-macros
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - uses: actions/checkout@v5
