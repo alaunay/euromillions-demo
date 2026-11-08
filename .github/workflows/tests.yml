@@ -114,7 +114,7 @@ jobs:
       - name: Install the packaging tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq bats debhelper dh-python dh-sequence-python3 \
+          sudo apt-get install -y -qq bats build-essential debhelper dh-python dh-sequence-python3 \
             gettext git pybuild-plugin-pyproject python3-all python3-setuptools shellcheck
 
       - name: Build the Debian package
