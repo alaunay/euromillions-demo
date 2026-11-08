@@ -18,14 +18,22 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install gettext
-        run: sudo apt-get update -qq && sudo apt-get install -y -qq gettext
+      - name: Install the shell tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq bats gettext shellcheck
 
       - name: Build the catalogues
         run: tools/build-locales.sh
 
       - name: Install the project
         run: python3 -m pip install -e ".[dev]"
+
+      - name: Shellcheck
+        run: shellcheck tools/build-locales.sh .githooks/commit-msg
+
+      - name: Test the shell scripts
+        run: bats tests/shell
 
       - name: Lint
         run: ruff check .

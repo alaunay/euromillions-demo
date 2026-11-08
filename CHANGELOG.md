@@ -16,3 +16,4 @@ uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Console script `terminal-svg-demo`, and `python -m terminal_svg_demo`.
 - Tests, ruff, mypy, and coverage in CI, across Python 3.10 to 3.13.
 - Self-describing demo in `examples/self-demo.svg`.
+- shellcheck and a bats suite for the catalogue builder and the commit hook.
