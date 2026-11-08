@@ -131,11 +131,10 @@ def typing(width, start, end, cycle):
     )
 
 
-def cursor_move(start, end, width, cycle):
-    x = start
+def cursor_move(x, begin, end, width, cycle):
     return (
         f'<animate attributeName="x" values="{x};{x};{x + width};{x + width}" '
-        f'keyTimes="0;{key(start, cycle)};{key(end, cycle)};1" {timed(cycle, cycle)}/>'
+        f'keyTimes="0;{key(begin, cycle)};{key(end, cycle)};1" {timed(cycle, cycle)}/>'
     )
 
 
@@ -223,7 +222,13 @@ def build(spec=None):
         command_width = len(session["command"]) * char_width
         hide = layout.begin[index + 1] if index < last else cycle
 
-        out.append(text(spec["left"], y, "$", colors["prompt"]))
+        if index:
+            out.append(f'<g opacity="0">{fade_in(max(begin - 0.3, 0.0), cycle)}')
+            out.append(text(spec["left"], y, "$", colors["prompt"]))
+            out.append("</g>")
+        else:
+            out.append(text(spec["left"], y, "$", colors["prompt"]))
+
         out.append(f'<g clip-path="url(#typing-{index})">')
         out.append(text(prompt_x, y, session["command"], colors["command"]))
         out.append("</g>")
@@ -231,7 +236,7 @@ def build(spec=None):
             f'<rect x="{prompt_x}" y="{y - 13}" width="8" height="{font_size + 4}" '
             f'fill="{colors["command"]}" opacity="0">'
             f"{cursor_visibility(begin, hide, cycle)}"
-            f"{cursor_move(prompt_x, end, command_width, cycle)}"
+            f"{cursor_move(prompt_x, begin, end, command_width, cycle)}"
             "</rect>"
         )
 
