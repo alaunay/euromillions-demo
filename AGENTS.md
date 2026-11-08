@@ -4,18 +4,21 @@ Guidance for agents working in this repository.
 
 ## Project
 
-`make_demo.py` writes the animated terminal SVG used by the euromillions
-README. It builds the document in memory, then writes it to the path given
-on the command line, or to `demo.svg`.
+`make_demo.py` renders an animated terminal session as declarative SVG,
+from a JSON spec. It builds the document in memory, then writes it to the
+path given on the command line, or to `demo.svg`.
 
 - Standard library only. Do not add a dependency.
 - SMIL for the animation. No JavaScript, no media player, no GIF.
-- The draw values, the colours, and the layout are constants at the top.
+- Nothing about a particular project belongs in the code: the title, the
+  commands, the outputs, and the colours all come from the spec.
+- `examples/euromillions.json` is the spec used by the euromillions
+  repository. Keep it in step with that repository when it changes.
 
 Run it with:
 
 ```
-python3 make_demo.py OUTPUT.svg
+python3 make_demo.py SPEC.json OUTPUT.svg
 ```
 
 ## Tests
@@ -28,17 +31,18 @@ python3 -m py_compile make_demo.py test_make_demo.py
 python3 -m unittest -v
 ```
 
-CI runs all three, and the tests assert that the generated document is
-well-formed XML, that it animates, that both draws are present, and that
-the palette constants appear.
+CI runs all three. The tests build the example spec, assert that the
+document is well-formed XML, that it animates, that every session and
+output is present, that the spec colours appear, and that a minimal spec
+outside the example builds too.
 
 ## Code conventions
 
 - Python 3.8 or later, standard library only.
 - Four spaces, double quotes.
 - `ruff check` must pass with no finding.
-- Keep the generated SVG valid when rendered as an `<img>`: no script, no
-  external resource.
+- Keep the generated SVG valid as an `<img>`: no script, no external
+  resource.
 
 ## Commit rules
 

@@ -1,171 +1,253 @@
 #!/usr/bin/env python3
-"""Render the animated terminal used by the euromillions README.
+"""Render an animated terminal session as declarative SVG.
 
-The animation is declarative SVG (SMIL), so every renderer plays it
-without a media player and without JavaScript.
+The animation uses SMIL, so every renderer plays it as a plain image: no
+JavaScript, no media player, no GIF.
 
-    python3 make_demo.py OUTPUT.svg
+    python3 make_demo.py SPEC.json [OUTPUT.svg]
 """
 
+import json
 import sys
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-WIDTH, HEIGHT = 720, 306
-TITLE_BAR = 40
-CYCLE = 12.0
-
-BACKGROUND = "#0d1117"
-TITLE_BACKGROUND = "#161b22"
-TITLE_TEXT = "#8b949e"
-PROMPT = "#39ff14"
-COMMAND = "#e6edf3"
-LABEL = "#9aa4b2"
-NUMBERS = "#4d6bff"
-STARS = "#eebb05"
-CURSOR = "#c9d1d9"
-
-FONT = "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace"
-FONT_SIZE = 15
-CHAR_WIDTH = 9.0
-LEFT = 28
-PROMPT_WIDTH = 18
-TEXT_START = LEFT + PROMPT_WIDTH
-VALUE_COLUMN = 112
-FIRST_LINE = 72
-LINE_HEIGHT = 28
-CURSOR_INSET = 2
-
-TYPING = 0.055
-START_ONE = 0.35
-START_TWO = 2.95
-HOLD = 11.4
-
-COMMAND_ONE = "./euromillions.sh"
-OUTPUT_ONE = [("Numbers:", "4 8 13 36 46", NUMBERS), ("Stars:", "3 12", STARS)]
-COMMAND_TWO = "./euromillions.sh --lang fr"
-OUTPUT_TWO = [("Numéros:", "17 19 20 27 48", NUMBERS), ("Étoiles:", "5 12", STARS)]
+DEFAULTS = {
+    "title": "terminal",
+    "width": 720,
+    "title_bar": 40,
+    "first_line": 72,
+    "line_height": 28,
+    "left": 28,
+    "prompt_width": 18,
+    "value_column": 112,
+    "font_size": 15,
+    "char_width": 9.0,
+    "typing": 0.055,
+    "start": 0.35,
+    "line_pause": 0.35,
+    "session_pause": 0.6,
+    "hold": 7.0,
+    "colors": {
+        "background": "#0d1117",
+        "title_background": "#161b22",
+        "title_text": "#8b949e",
+        "prompt": "#3fb950",
+        "command": "#c9d1d9",
+        "label": "#8b949e",
+    },
+    "sessions": [],
+}
 
 
-def key(time):
-    """Normalise a time in seconds to the animation cycle."""
-    return round(time / CYCLE, 4)
+def merge(base, override):
+    result = dict(base)
+
+    for key, value in override.items():
+        if isinstance(value, dict) and isinstance(result.get(key), dict):
+            result[key] = merge(result[key], value)
+        else:
+            result[key] = value
+
+    return result
+
+
+def load(path):
+    with open(path, encoding="utf-8") as handle:
+        return merge(DEFAULTS, json.load(handle))
 
 
 def text(x, y, value, fill, extra=""):
+    return f'<text x="{x}" y="{y}" fill="{fill}"{extra}>{escape(value)}</text>'
+
+
+def timed(duration, cycle):
+    return f'dur="{duration}s" repeatCount="indefinite"'
+
+
+class Layout:
+    """Where the lines sit, and the length of the animation cycle."""
+
+    def __init__(self, spec):
+        self.spec = spec
+        self.rows = sum(1 + len(session["outputs"]) for session in spec["sessions"])
+        self.rows += max(len(spec["sessions"]) - 1, 0)
+        self.height = spec["first_line"] + (self.rows - 1) * spec["line_height"] + 66
+        self.y = {}
+        self.begin = {}
+        self.end = {}
+        self.cycle = 0.0
+        self.place()
+
+    def place(self):
+        first = self.spec["first_line"]
+        step = self.spec["line_height"]
+        start = self.spec["start"]
+        pause = self.spec["line_pause"]
+        typing = self.spec["typing"]
+
+        y = first
+        t = start
+        last = len(self.spec["sessions"]) - 1
+
+        for index, session in enumerate(self.spec["sessions"]):
+            self.y[index] = y
+            self.begin[index] = t
+            self.end[index] = t + len(session["command"]) * typing
+            t = self.end[index]
+
+            for offset in range(len(session["outputs"])):
+                y += step
+                t += pause * (1 if offset else 0.43)
+                self.y[(index, offset)] = y
+
+            y += step * 2
+            t += self.spec["session_pause"] if index < last else 0.0
+
+        self.cycle = t + self.spec["hold"]
+
+    def prompt_x(self):
+        return self.spec["left"] + self.spec["prompt_width"]
+
+    def value_x(self):
+        return self.spec["value_column"]
+
+
+def key(time, cycle):
+    return round(time / cycle, 4)
+
+
+def fade_in(at, cycle):
     return (
-        f'<text x="{x}" y="{y}" fill="{fill}"{extra}>'
-        f"{escape(value)}</text>"
+        f'<animate attributeName="opacity" values="0;1" keyTimes="0;{key(at, cycle)}" '
+        f"{timed(cycle, cycle)} calcMode=\"discrete\"/>"
     )
 
 
-def fade_in(at):
-    """Opacity animation: hidden until at, visible afterwards."""
-    return (
-        f'<animate attributeName="opacity" values="0;1" keyTimes="0;{key(at)}" '
-        f'dur="{CYCLE}s" calcMode="discrete" repeatCount="indefinite"/>'
-    )
-
-
-def typing(width, start, end):
-    """Clip width animation for a typewriter effect."""
+def typing(width, start, end, cycle):
     return (
         f'<animate attributeName="width" values="0;0;{width};{width}" '
-        f'keyTimes="0;{key(start)};{key(end)};1" dur="{CYCLE}s" '
-        f'repeatCount="indefinite"/>'
+        f'keyTimes="0;{key(start, cycle)};{key(end, cycle)};1" {timed(cycle, cycle)}/>'
     )
 
 
-def cursor_move(width, start, end):
-    """Cursor x position, following the typed text."""
+def cursor_move(start, end, width, cycle):
+    x = start
     return (
-        f'<animate attributeName="x" values="{TEXT_START};{TEXT_START};'
-        f'{TEXT_START + width};{TEXT_START + width}" '
-        f'keyTimes="0;{key(start)};{key(end)};1" dur="{CYCLE}s" '
-        f'repeatCount="indefinite"/>'
+        f'<animate attributeName="x" values="{x};{x};{x + width};{x + width}" '
+        f'keyTimes="0;{key(start, cycle)};{key(end, cycle)};1" {timed(cycle, cycle)}/>'
     )
 
 
-def build():
-    width_one = len(COMMAND_ONE) * CHAR_WIDTH
-    width_two = len(COMMAND_TWO) * CHAR_WIDTH
-    end_one = START_ONE + len(COMMAND_ONE) * TYPING
-    end_two = START_TWO + len(COMMAND_TWO) * TYPING
+def cursor_visibility(begin, hide, cycle):
+    start = max(begin - 0.3, 0.0)
+    if hide >= cycle:
+        return (
+            f'<animate attributeName="opacity" values="0;1;1" '
+            f'keyTimes="0;{key(start, cycle)};1" '
+            f"{timed(cycle, cycle)} calcMode=\"discrete\"/>"
+        )
+    return (
+        f'<animate attributeName="opacity" values="0;1;1;0" '
+        f'keyTimes="0;{key(start, cycle)};{key(hide, cycle)};1" '
+        f"{timed(cycle, cycle)} calcMode=\"discrete\"/>"
+    )
+
+
+def build(spec=None):
+    if spec is None:
+        spec = merge(DEFAULTS, {})
+
+    layout = Layout(spec)
+    cycle = layout.cycle
+    colors = spec["colors"]
+    font_size = spec["font_size"]
+    char_width = spec["char_width"]
+    prompt_x = layout.prompt_x()
+    value_x = layout.value_x()
+    width = spec["width"]
+    height = layout.height
+    last = len(spec["sessions"]) - 1
 
     out = []
-    out.append(f'<svg xmlns="http://www.w3.org/2000/svg" width="{WIDTH}" height="{HEIGHT}" '
-               f'viewBox="0 0 {WIDTH} {HEIGHT}" role="img" aria-labelledby="title desc">')
-    out.append('<title id="title">Terminal session running euromillions.sh</title>')
-    out.append('<desc id="desc">The script prints five numbers and two stars, then prints '
-               'the same draw in French.</desc>')
+    out.append(
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" '
+        f'viewBox="0 0 {width} {height}" role="img" aria-labelledby="title desc">'
+    )
+    out.append('<title id="title">Terminal session</title>')
+    out.append(
+        '<desc id="desc">A terminal types a command, prints the result, then types '
+        "another command.</desc>"
+    )
 
     out.append("<defs>")
-    out.append(
-        f'<clipPath id="typing-one"><rect x="{TEXT_START}" y="{FIRST_LINE - 14}" '
-        f'width="0" height="22">{typing(width_one, START_ONE, end_one)}</rect></clipPath>'
-    )
-    out.append(
-        f'<clipPath id="typing-two"><rect x="{TEXT_START}" y="{FIRST_LINE + 4 * LINE_HEIGHT - 14}" '
-        f'width="0" height="22">{typing(width_two, START_TWO, end_two)}</rect></clipPath>'
-    )
+    for index, session in enumerate(spec["sessions"]):
+        y = layout.y[index]
+        command_width = len(session["command"]) * char_width
+        out.append(
+            f'<clipPath id="typing-{index}"><rect x="{prompt_x}" y="{y - 14}" width="0" '
+            f'height="22">{typing(command_width, layout.begin[index], layout.end[index], cycle)}'
+            "</rect></clipPath>"
+        )
     out.append("</defs>")
 
-    out.append(f'<rect width="{WIDTH}" height="{HEIGHT}" rx="12" fill="{BACKGROUND}"/>')
-    out.append(f'<rect width="{WIDTH}" height="{TITLE_BAR}" rx="12" fill="{TITLE_BACKGROUND}"/>')
-    out.append(f'<rect y="{TITLE_BAR - 12}" width="{WIDTH}" height="12" fill="{TITLE_BACKGROUND}"/>')
+    out.append(f'<rect width="{width}" height="{height}" rx="12" fill="{colors["background"]}"/>')
+    out.append(
+        f'<rect width="{width}" height="{spec["title_bar"]}" rx="12" '
+        f'fill="{colors["title_background"]}"/>'
+    )
+    out.append(
+        f'<rect y="{spec["title_bar"] - 12}" width="{width}" height="12" '
+        f'fill="{colors["title_background"]}"/>'
+    )
     for index, color in enumerate(("#ff5f56", "#ffbd2e", "#27c93f")):
-        out.append(f'<circle cx="{24 + index * 20}" cy="{TITLE_BAR // 2}" r="6" fill="{color}"/>')
-    out.append(text(WIDTH / 2, 25, "euromillions", TITLE_TEXT, ' text-anchor="middle" font-size="12"'))
-
-    out.append(f'<g font-family="{FONT}" font-size="{FONT_SIZE}">')
-
-    # First prompt and command, typed through a clip
-    out.append(text(LEFT, FIRST_LINE, "$", PROMPT))
-    out.append('<g clip-path="url(#typing-one)">')
-    out.append(text(TEXT_START, FIRST_LINE, COMMAND_ONE, COMMAND))
-    out.append("</g>")
-
-    # Cursor for the first command
+        out.append(
+            f'<circle cx="{24 + index * 20}" cy="{spec["title_bar"] // 2}" r="6" fill="{color}"/>'
+        )
     out.append(
-        f'<rect x="{TEXT_START}" y="{FIRST_LINE - 13}" width="8" height="{FONT_SIZE + 4}" '
-        f'fill="{CURSOR}" opacity="0">{cursor_move(width_one, START_ONE, end_one)}'
-        f'<animate attributeName="opacity" values="1;1;0;0" keyTimes="0;{key(START_ONE)};'
-        f'{key(end_one)};1" dur="{CYCLE}s" calcMode="discrete" repeatCount="indefinite"/></rect>'
+        text(
+            width / 2,
+            25,
+            spec["title"],
+            colors["title_text"],
+            ' text-anchor="middle" font-size="12"',
+        )
     )
 
-    # First output
-    for index, (label, value, color) in enumerate(OUTPUT_ONE):
-        at = end_one + 0.15 + index * 0.35
-        y = FIRST_LINE + (index + 1) * LINE_HEIGHT
-        out.append(f'<g opacity="0">{fade_in(at)}')
-        out.append(text(LEFT, y, label, LABEL))
-        out.append(text(VALUE_COLUMN, y, value, color))
-        out.append("</g>")
+    out.append(f'<g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="{font_size}">')
 
-    # Second prompt, command and output
-    second_line = FIRST_LINE + 4 * LINE_HEIGHT
-    out.append(f'<g opacity="0">{fade_in(START_TWO - 0.3)}')
-    out.append(text(LEFT, second_line, "$", PROMPT))
-    out.append("</g>")
-    out.append('<g clip-path="url(#typing-two)">')
-    out.append(text(TEXT_START, second_line, COMMAND_TWO, COMMAND))
-    out.append("</g>")
-    out.append(
-        f'<rect x="{TEXT_START}" y="{second_line - 13}" width="8" height="{FONT_SIZE + 4}" '
-        f'fill="{CURSOR}" opacity="0">'
-        f'<animate attributeName="opacity" values="0;1" keyTimes="0;{key(START_TWO - 0.3)}" '
-        f'dur="{CYCLE}s" calcMode="discrete" repeatCount="indefinite"/>'
-        f"{cursor_move(width_two, START_TWO, end_two)}"
-        f"</rect>"
-    )
+    for index, session in enumerate(spec["sessions"]):
+        y = layout.y[index]
+        begin = layout.begin[index]
+        end = layout.end[index]
+        command_width = len(session["command"]) * char_width
+        hide = layout.begin[index + 1] if index < last else cycle
 
-    for index, (label, value, color) in enumerate(OUTPUT_TWO):
-        at = end_two + 0.15 + index * 0.35
-        y = second_line + (index + 1) * LINE_HEIGHT
-        out.append(f'<g opacity="0">{fade_in(at)}')
-        out.append(text(LEFT, y, label, LABEL))
-        out.append(text(VALUE_COLUMN, y, value, color))
+        out.append(text(spec["left"], y, "$", colors["prompt"]))
+        out.append(f'<g clip-path="url(#typing-{index})">')
+        out.append(text(prompt_x, y, session["command"], colors["command"]))
         out.append("</g>")
+        out.append(
+            f'<rect x="{prompt_x}" y="{y - 13}" width="8" height="{font_size + 4}" '
+            f'fill="{colors["command"]}" opacity="0">'
+            f"{cursor_visibility(begin, hide, cycle)}"
+            f"{cursor_move(prompt_x, end, command_width, cycle)}"
+            "</rect>"
+        )
+
+        for offset, output in enumerate(session["outputs"]):
+            at = end + spec["line_pause"] * (1 if offset else 0.43)
+            out.append(f'<g opacity="0">{fade_in(at, cycle)}')
+            out.append(text(spec["left"], layout.y[(index, offset)], output["label"], colors["label"]))
+            out.append(
+                text(
+                    value_x,
+                    layout.y[(index, offset)],
+                    output["value"],
+                    output["color"],
+                )
+            )
+            out.append("</g>")
 
     out.append("</g>")
     out.append("</svg>")
@@ -173,11 +255,17 @@ def build():
 
 
 def main(argv):
-    target = Path(argv[1]) if len(argv) > 1 else Path("demo.svg")
+    if len(argv) < 2:
+        print("usage: make_demo.py SPEC.json [OUTPUT.svg]", file=sys.stderr)
+        return 2
+
+    spec = load(argv[1])
+    target = Path(argv[2]) if len(argv) > 2 else Path("demo.svg")
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(build(), encoding="utf-8")
+    target.write_text(build(spec), encoding="utf-8")
     print(f"wrote {target}")
+    return 0
 
 
 if __name__ == "__main__":
-    main(sys.argv)
+    sys.exit(main(sys.argv))
