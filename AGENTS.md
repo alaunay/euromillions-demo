@@ -85,6 +85,18 @@ tools/build-locales.sh
 
 `msgfmt --check` rejects a translation whose placeholders drift.
 
+## Metadata
+
+`metadata.json` follows the OpenVox module metadata format: name, version,
+sources, dependencies, and `operating_system_support`. Update the system
+list when a supported platform changes, then run:
+
+```
+python3 tools/check-metadata.py
+```
+
+CI validates it, and the macOS and FreeBSD jobs must agree with the list.
+
 ## Packaging
 
 `debian/` builds a Debian package with `dpkg-buildpackage -b -us -uc`, and
