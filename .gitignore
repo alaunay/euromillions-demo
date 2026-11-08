@@ -8,3 +8,14 @@ dist/
 .coverage
 src/terminal_svg_demo/locale/
 .venv/
+*.deb
+*.buildinfo
+*.changes
+rpmbuild/
+debian/.debhelper/
+debian/terminal-svg-demo/
+debian/files
+debian/debhelper-build-stamp
+debian/*.substvars
+.pybuild/
+debian/*.debhelper

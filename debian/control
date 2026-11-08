@@ -1,0 +1,18 @@
+Source: terminal-svg-demo
+Section: graphics
+Priority: optional
+Maintainer: Arnaud Launay <asl@launay.org>
+Build-Depends: bats, debhelper-compat (= 13), dh-sequence-python3, gettext,
+ pybuild-plugin-pyproject, python3-all, python3-setuptools, shellcheck
+Standards-Version: 4.7.0
+Rules-Requires-Root: no
+Homepage: https://github.com/alaunay/terminal-svg-demo
+Vcs-Git: https://github.com/alaunay/terminal-svg-demo.git
+
+Package: terminal-svg-demo
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: render an animated terminal session as declarative SVG
+ Render a command line session as a self-playing SVG animation, from a
+ JSON spec. The animation uses SMIL, so it needs no JavaScript, no media
+ player, and no dependency beyond the Python standard library.

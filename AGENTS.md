@@ -85,6 +85,17 @@ tools/build-locales.sh
 
 `msgfmt --check` rejects a translation whose placeholders drift.
 
+## Packaging
+
+`debian/` builds a Debian package with `dpkg-buildpackage -b -us -uc`, and
+`packaging/rpm/terminal-svg-demo.spec` builds an RPM from a `git archive`
+tarball with the `pyproject-rpm-macros`.
+
+The two distributions place the gettext catalogues differently: Debian
+inside the Python package, the RPM under `/usr/share/terminal-svg-demo`.
+`i18n.locale_dirs()` searches both, plus the same path under `sys.prefix`.
+Keep that list when changing the layout.
+
 ## Commit rules
 
 ### Co-authored-by is mandatory

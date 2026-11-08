@@ -1,0 +1,12 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@ --buildsystem=pybuild
+
+override_dh_auto_build:
+	tools/build-locales.sh
+	dh_auto_build
+
+override_dh_auto_test:
+	bats tests/shell
+	PYTHONPATH=src python3 -m unittest discover -s tests
