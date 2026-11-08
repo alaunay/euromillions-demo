@@ -1,6 +1,7 @@
 """Tests for the renderer."""
 
 import re
+import tempfile
 import unittest
 from pathlib import Path
 from xml.dom.minidom import parseString
@@ -46,6 +47,31 @@ class BuildTest(unittest.TestCase):
             self.assertEqual(values[0], 0.0)
             self.assertEqual(values, sorted(values))
             self.assertEqual(len(values), len(set(values)))
+
+
+class CommentTest(unittest.TestCase):
+    def test_a_spec_may_hold_line_comments(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            spec_file = Path(tmp) / "spec.json"
+            spec_file.write_text(
+                """
+{
+  "title": "commented",
+  // the prompt is neon green
+  "sessions": [
+    {
+      "command": "echo hi",
+      // the only output
+      "outputs": [{"label": "out:", "value": "hi", "color": "#ffffff"}]
+    }
+  ]
+}
+""",
+                encoding="utf-8",
+            )
+            spec = load(str(spec_file))
+            self.assertEqual(spec["title"], "commented")
+            self.assertIn("echo hi", build(spec))
 
 
 class GeneralityTest(unittest.TestCase):

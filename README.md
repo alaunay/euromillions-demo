@@ -87,7 +87,18 @@ default.
 | `colors.command` | `#c9d1d9` | typed command and cursor |
 | `colors.label` | `#8b949e` | output label |
 
-Each output needs `label`, `value`, and its own `color`. The layout, the
+Each output needs `label`, `value`, and its own `color`. A spec accepts
+whole-line `//` comments, so a value can name its colour:
+
+```json
+// EuroMillions gold
+{"label": "Stars:", "value": "3 12", "color": "#eebb05"}
+```
+
+The examples use these names: EuroMillions blue `#4d6bff`, EuroMillions
+gold `#eebb05`, neon green `#39ff14`, near-white `#e6edf3`, cool grey
+`#9aa4b2`, plus the window defaults: near-black background `#0d1117`,
+graphite title bar `#161b22`, grey title text `#8b949e`. The layout, the
 typing speed, the pauses, and the height follow from the number of
 sessions and outputs. A spec that breaks the shape is rejected with a
 message naming the field.

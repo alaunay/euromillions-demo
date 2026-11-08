@@ -50,9 +50,16 @@ def merge(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def load(path: str) -> Dict[str, Any]:
-    """Read a spec file and merge it with the defaults."""
+    """Read a spec file and merge it with the defaults.
+
+    Whole-line ``//`` comments are accepted, so a spec can name a colour
+    next to its value.
+    """
     with open(path, encoding="utf-8") as handle:
-        spec = json.load(handle)
+        text = handle.read()
+
+    body = "\n".join(line for line in text.splitlines() if not line.lstrip().startswith("//"))
+    spec = json.loads(body)
 
     if not isinstance(spec, dict):
         raise ValueError(_("the spec must be a JSON object"))

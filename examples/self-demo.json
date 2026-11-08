@@ -4,19 +4,24 @@
     {
       "command": "terminal-svg-demo examples/self-demo.json self-demo.svg",
       "outputs": [
+        // neon green, the success colour of the tool
         {"label": "wrote:", "value": "self-demo.svg", "color": "#39ff14"}
       ]
     },
     {
       "command": "terminal-svg-demo examples/euromillions.json euromillions.svg",
       "outputs": [
+        // neon green
         {"label": "wrote:", "value": "euromillions.svg", "color": "#39ff14"}
       ]
     }
   ],
   "colors": {
+    // neon green dollar sign
     "prompt": "#39ff14",
+    // near-white typed command and cursor
     "command": "#e6edf3",
+    // cool grey output labels
     "label": "#9aa4b2"
   }
 }
