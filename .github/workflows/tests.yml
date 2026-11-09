@@ -147,7 +147,8 @@ jobs:
       - name: Build the RPM
         run: |
           mkdir -p dist rpmbuild/SOURCES
-          version=1.1.0
+          version=$(sed -n 's/^Version:[[:space:]]*\(.*\)/\1/p' \
+            packaging/rpm/terminal-svg-demo.spec)
           git archive --format=tar.gz --prefix="terminal-svg-demo-$version/" \
             --output="rpmbuild/SOURCES/terminal-svg-demo-$version.tar.gz" HEAD
           rpmbuild -bb packaging/rpm/terminal-svg-demo.spec \
