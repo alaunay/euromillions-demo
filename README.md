@@ -236,6 +236,29 @@ RPM keeps them in `/usr/share/terminal-svg-demo`. The program looks in
 both places, so either layout translates. CI builds both and attaches
 them to the run.
 
+## Install from the repository
+
+Each release publishes an apt and a dnf repository on GitHub Pages.
+
+Debian and Ubuntu:
+
+```console
+$ curl -fsSL https://alaunay.github.io/terminal-svg-demo/keys/repo.asc \
+    | sudo gpg --dearmor -o /usr/share/keyrings/terminal-svg-demo.gpg
+$ echo "deb [signed-by=/usr/share/keyrings/terminal-svg-demo.gpg] \
+https://alaunay.github.io/terminal-svg-demo/apt stable main" \
+    | sudo tee /etc/apt/sources.list.d/terminal-svg-demo.list
+$ sudo apt update && sudo apt install terminal-svg-demo
+```
+
+CentOS and RHEL:
+
+```console
+$ sudo curl -fsSL -o /etc/yum.repos.d/terminal-svg-demo.repo \
+    https://alaunay.github.io/terminal-svg-demo/terminal-svg-demo.repo
+$ sudo dnf install terminal-svg-demo
+```
+
 ## Code scanning
 
 GitHub code scanning runs CodeQL on the Python code through the repository
