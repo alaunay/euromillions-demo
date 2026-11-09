@@ -248,7 +248,7 @@ JSON output and the `code-scanning` job uploads it.
 [`CHANGELOG.md`](CHANGELOG.md) is generated from the git history:
 
 ```console
-$ python3 tools/changelog.py v0.0.1
+$ python3 tools/changelog.py v0.0.1 --output CHANGELOG.md
 ```
 
 The release workflow runs the same command for the new tag and uses the

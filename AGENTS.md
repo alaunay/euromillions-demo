@@ -92,7 +92,7 @@ tools/build-locales.sh
 `CHANGELOG.md` is generated, never hand-typed:
 
 ```
-python3 tools/changelog.py vX.Y.Z > CHANGELOG.md
+python3 tools/changelog.py vX.Y.Z --output CHANGELOG.md
 ```
 
 The script groups Conventional Commits prefixes and lists the rest under
