@@ -21,7 +21,7 @@ jobs:
       - name: Install the shell tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq bats gettext shellcheck
+          sudo apt-get install -y -qq bats createrepo-c dpkg-dev gettext rpm shellcheck
 
       - name: Build the catalogues
         run: tools/build-locales.sh
@@ -30,7 +30,7 @@ jobs:
         run: python3 -m pip install -e ".[dev]"
 
       - name: Shellcheck
-        run: shellcheck tools/build-locales.sh .githooks/commit-msg
+        run: shellcheck tools/build-locales.sh tools/build-repo.sh .githooks/commit-msg
 
       - name: Test the shell scripts
         run: bats tests/shell
