@@ -119,18 +119,9 @@ CI validates it, and the macOS and FreeBSD jobs must agree with the list.
 
 ## Repository hosting
 
-`tools/build-repo.sh` assembles an apt repository and an rpm repository
-from the release assets, signing the metadata and the packages with
-`REPO_GPG_KEY_ID`. `.github/workflows/pages.yml` runs it on every published
-release and deploys the result with GitHub Pages.
-
-`tests/shell/build_repo.bats` builds a signed apt and rpm repository from
-throwaway packages and a throwaway key; the format-specific cases skip when
-the distribution tooling is absent.
-
-Secrets: `REPO_GPG_PRIVATE_KEY` (armored private key) and `REPO_GPG_KEY_ID`.
-The Pages source must be "GitHub Actions". Without a key the script leaves
-the metadata unsigned, which apt refuses by default.
+The apt and rpm repositories are published by the shared
+[alaunay/packages](https://github.com/alaunay/packages) repository, from the
+release assets of this project. Do not add a per-repository pages workflow.
 
 ## Releases
 

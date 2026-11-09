@@ -2,8 +2,7 @@ Source: terminal-svg-demo
 Section: graphics
 Priority: optional
 Maintainer: Arnaud Launay <asl@launay.org>
-Build-Depends: apt-utils, bats, createrepo-c, debhelper-compat (= 13), dh-sequence-python3,
- gettext, gpg, rpm,
+Build-Depends: bats, debhelper-compat (= 13), dh-sequence-python3, gettext,
  pybuild-plugin-pyproject, python3-all, python3-setuptools, shellcheck
 Standards-Version: 4.7.0
 Rules-Requires-Root: no

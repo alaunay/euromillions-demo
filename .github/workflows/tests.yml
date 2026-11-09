@@ -21,7 +21,7 @@ jobs:
       - name: Install the shell tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq apt-utils bats createrepo-c dpkg-dev gettext rpm shellcheck
+          sudo apt-get install -y -qq bats gettext shellcheck
 
       - name: Build the catalogues
         run: tools/build-locales.sh
@@ -30,7 +30,7 @@ jobs:
         run: python3 -m pip install -e ".[dev]"
 
       - name: Shellcheck
-        run: shellcheck tools/build-locales.sh tools/build-repo.sh .githooks/commit-msg
+        run: shellcheck tools/build-locales.sh .githooks/commit-msg
 
       - name: Test the shell scripts
         run: bats tests/shell
@@ -119,9 +119,8 @@ jobs:
       - name: Install the packaging tools
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y -qq apt-utils bats build-essential createrepo-c \
-            debhelper dh-python dh-sequence-python3 gettext git rpm pybuild-plugin-pyproject \
-            python3-all python3-setuptools shellcheck
+          sudo apt-get install -y -qq bats build-essential debhelper dh-python dh-sequence-python3 \
+            gettext git pybuild-plugin-pyproject python3-all python3-setuptools shellcheck
 
       - name: Build the Debian package
         run: |
