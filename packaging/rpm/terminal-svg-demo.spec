@@ -1,3 +1,5 @@
+%global _python_dist_allow_version_zero 1
+
 Name:           terminal-svg-demo
 Version:        0.0.0
 Release:        1%{?dist}
