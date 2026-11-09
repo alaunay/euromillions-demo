@@ -198,9 +198,9 @@ $ git push origin v1.1.0
 ```
 
 `.github/workflows/release.yml` builds the `.deb` and the `.rpm`, then
-attaches both to the GitHub release. The tag must match the versions in
-`debian/changelog`, `packaging/rpm/terminal-svg-demo.spec`, `pyproject.toml`,
-and `metadata.json`; the job stops otherwise.
+attaches both to the GitHub release. The repository carries `0.0.0` as the
+unreleased placeholder; the workflow takes the version from the tag and
+injects it before building, so nothing needs bumping.
 
 ## Contributing
 

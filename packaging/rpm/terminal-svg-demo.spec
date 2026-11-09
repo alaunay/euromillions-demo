@@ -1,5 +1,5 @@
 Name:           terminal-svg-demo
-Version:        1.1.0
+Version:        0.0.0
 Release:        1%{?dist}
 Summary:        Render an animated terminal session as declarative SVG
 
@@ -41,8 +41,5 @@ cp -a src/terminal_svg_demo/locale %{buildroot}%{_datadir}/terminal-svg-demo/
 %{_datadir}/terminal-svg-demo
 
 %changelog
-* Mon Nov 09 2026 Arnaud Launay <asl@launay.org> - 1.1.0-1
-- Spec comments.
-
-* Sun Nov 08 2026 Arnaud Launay <asl@launay.org> - 1.0.0-1
-- Initial package.
+* Mon Nov 09 2026 Arnaud Launay <asl@launay.org> - 0.0.0-1
+- Unreleased.

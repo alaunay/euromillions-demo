@@ -1,11 +1,5 @@
-terminal-svg-demo (1.1.0) unstable; urgency=medium
+terminal-svg-demo (0.0.0) unstable; urgency=medium
 
-  * Accept line comments in the spec.
+  * Unreleased.
 
  -- Arnaud Launay <asl@launay.org>  Mon, 09 Nov 2026 08:00:00 +0100
-
-terminal-svg-demo (1.0.0) unstable; urgency=medium
-
-  * Initial package.
-
- -- Arnaud Launay <asl@launay.org>  Sun, 08 Nov 2026 22:30:00 +0100
