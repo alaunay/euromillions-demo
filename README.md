@@ -245,7 +245,15 @@ JSON output and the `code-scanning` job uploads it.
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md).
+[`CHANGELOG.md`](CHANGELOG.md) is generated from the git history:
+
+```console
+$ python3 tools/changelog.py v0.0.1
+```
+
+The release workflow runs the same command for the new tag and uses the
+output as the release notes. Commits carrying a Conventional Commits
+prefix are grouped; the rest land under "Changes".
 
 ## License
 

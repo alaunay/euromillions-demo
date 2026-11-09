@@ -87,6 +87,18 @@ tools/build-locales.sh
 
 `msgfmt --check` rejects a translation whose placeholders drift.
 
+## Changelog
+
+`CHANGELOG.md` is generated, never hand-typed:
+
+```
+python3 tools/changelog.py vX.Y.Z > CHANGELOG.md
+```
+
+The script groups Conventional Commits prefixes and lists the rest under
+"Changes". The release workflow runs it for the tag and feeds the release
+body.
+
 ## Code scanning
 
 CodeQL runs on the Python code through the repository default setup. The
